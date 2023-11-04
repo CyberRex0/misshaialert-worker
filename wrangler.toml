@@ -1,0 +1,17 @@
+name = "misshaialert-worker"
+main = "src/index.ts"
+compatibility_date = "2023-11-04"
+
+#kv_namespaces = [
+#    { binding = "KV", id = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+#]
+
+[triggers]
+
+# will run at 9:10 UTC (0:10 JST)
+crons = [ "10 9 * * *" ]
+
+[vars]
+#MISSKEY_HOST = "misskey.io"
+#MISSKEY_TOKEN = "YourToken"
+#POST_VISIBILITY = "home"
