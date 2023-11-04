@@ -57,6 +57,28 @@ export interface KVUserCountStore {
 	notesCount: number;
 }
 
+async function saveCount(env: Env, key: string, notesCount: number, followersCount: number, followingCount: number) {
+	await env.KV.put(key, JSON.stringify({
+		notesCount: notesCount,
+		followingCount: followingCount,
+		followersCount: followersCount,
+	}));
+}
+
+async function getProfile(env: Env): Promise<UserProfile> {
+	const profreq = await fetch(`https://${env.MISSKEY_HOST}/api/i`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ i: env.MISSKEY_TOKEN }),
+	});
+	if (!profreq.ok || profreq.status != 200) {
+		throw new Error('Failed to fetch profile');
+	}
+	return await profreq.json();
+}
+
 export default {
 	async scheduled(
 		controller: ScheduledController,
@@ -64,18 +86,8 @@ export default {
 		ctx: ExecutionContext
 	): Promise<void> {
 		// Fetch my profile data
-		const profreq = await fetch(`https://${env.MISSKEY_HOST}/api/i`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ i: env.MISSKEY_TOKEN }),
-		});
-		if (!profreq.ok || profreq.status != 200) {
-			throw new Error('Failed to fetch profile');
-		}
 
-		const prof: UserProfile = await profreq.json();
+		const prof: UserProfile = await getProfile(env);
 		const KVS_KEY = `${prof.id}_count`;
 
 		// Get previous day's count from KV
@@ -109,10 +121,15 @@ export default {
 			});
 		}
 
-		await env.KV.put(KVS_KEY, JSON.stringify({
-			notesCount: prof.notesCount,
-			followingCount: prof.followingCount,
-			followersCount: prof.followersCount,
-		}));
+		await saveCount(env, KVS_KEY, prof.notesCount, prof.followersCount, prof.followingCount);
 	},
+	async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+		const url = new URL(request.url);
+		if (url.pathname === '/fetch') {
+			const res: UserProfile = await getProfile(env);
+			const KVS_KEY = `${res.id}_count`;
+			await saveCount(env, KVS_KEY, res.notesCount, res.followersCount, res.followingCount);
+			return new Response('OK');
+		}
+	}
 };
