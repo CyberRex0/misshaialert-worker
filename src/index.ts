@@ -1,14 +1,5 @@
-/**
- * Welcome to Cloudflare Workers! This is your first scheduled worker.
- *
- * - Run `wrangler dev --local` in your terminal to start a development server
- * - Run `curl "http://localhost:8787/cdn-cgi/mf/scheduled"` to trigger the scheduled event
- * - Go back to the console to see what your worker has logged
- * - Update the Cron trigger in wrangler.toml (see https://developers.cloudflare.com/workers/wrangler/configuration/#triggers)
- * - Run `wrangler deploy --name my-worker` to deploy your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/runtime-apis/scheduled-event/
- */
+// SPDX-FileCopyrightText: 2023 CyberRex <cyberrex@cbrx.io>
+// SPDX-License-Identifier: MIT
 
 // https://qiita.com/YOS0602/items/8eadf8f7743ebdc5946c からコピー
 export const format = (str: string, ...args: unknown[]): string => {
@@ -25,7 +16,7 @@ const postTemplate = '昨日のMisskeyの活動は\n\n\
 フォロワー: {4}({5})\n\
 \n\
 でした。\n\
-<small>Powered by Cloudflare Workers</small>\
+<small>Powered by Cloudflare Workers</small>{6}\
 ';
 
 export interface Env {
@@ -42,6 +33,7 @@ export interface Env {
 	MISSKEY_HOST: string;
 	MISSKEY_TOKEN: string;
 	POST_VISIBILITY: 'public' | 'home' | 'followers' | 'specified' | undefined;
+	POST_TAGS: string[] | undefined;
 }
 
 export interface UserProfile {
@@ -85,6 +77,7 @@ export default {
 		env: Env,
 		ctx: ExecutionContext
 	): Promise<void> {
+
 		// Fetch my profile data
 
 		const prof: UserProfile = await getProfile(env);
@@ -99,6 +92,14 @@ export default {
 			const followingCountDelta = prof.followingCount - kvs.followingCount;
 			const followersCountDelta = prof.followersCount - kvs.followersCount;
 
+			let hashtagstr = '';
+			if (env.POST_TAGS) {
+				for (let tindex=0; tindex<env.POST_TAGS.length; tindex++) {
+					hashtagstr += `#${env.POST_TAGS[tindex]} `;
+				}
+				hashtagstr = '\n' + hashtagstr.trim();
+			}
+			
 			const text = format(postTemplate,
 				prof.notesCount,
 				(notesCountDelta >= 0 ? '+' : '-' ) + notesCountDelta,
@@ -106,6 +107,7 @@ export default {
 				(followingCountDelta >= 0 ? '+' : '-' ) + followingCountDelta,
 				prof.followersCount,
 				(followersCountDelta >= 0 ? '+' : '-' ) + followersCountDelta,
+				hashtagstr
 			);
 
 			await fetch(`https://${env.MISSKEY_HOST}/api/notes/create`, {
@@ -131,5 +133,7 @@ export default {
 			await saveCount(env, KVS_KEY, res.notesCount, res.followersCount, res.followingCount);
 			return new Response('OK');
 		}
+
+		return new Response('Not found', { status: 404 });
 	}
 };

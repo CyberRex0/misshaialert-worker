@@ -8,10 +8,11 @@ compatibility_date = "2023-11-04"
 
 [triggers]
 
-# will run at 9:10 UTC (0:10 JST)
-crons = [ "10 9 * * *" ]
+# will run at 15:10 UTC (0:10 JST)
+crons = [ "10 15 * * *" ]
 
 [vars]
 #MISSKEY_HOST = "misskey.io"
 #MISSKEY_TOKEN = "YourToken"
 #POST_VISIBILITY = "home"
+#POST_TAGS = ["misshaialert"]
