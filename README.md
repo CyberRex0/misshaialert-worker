@@ -36,7 +36,7 @@ POST_VISIBILITY = "home" # public (パブリック), home (ホーム), followers
 POST_TAGS = ["misshaialert"] # 投稿時に使用するタグ。複数指定可。#は書かない。misshaialertはミュート使用者のために推奨
 ```
 
-投稿する時間も変更することができます。初期状態は 0:10 JST (15:00 UTC)です。<br>
+投稿する時間も変更することができます。初期状態は 0:00 JST (15:00 UTC)です。<br>
 書式はLinuxのcronと同じです。また、時間はUTCとして解釈されるため、日本で使用する場合は投稿したい時間から 9時間 引いたものを入力してください。 
 
 ```toml
@@ -83,10 +83,10 @@ Total Upload: 2.55 KiB / gzip: 1.01 KiB
 Uploaded misshaialert-worker (3.69 sec)
 Published misshaialert-worker (3.35 sec)
   https://misshaialert-worker.noogai.workers.dev
-  schedule: 10 15 * * *
+  schedule: 0 15 * * *
 Current Deployment ID: 1ca1e-65cb-46e8-97af-00000000000
 ```
 
 # Copyright
-&copy; 2023 CyberRex<br>
+&copy; 2023-2024 CyberRex<br>
 MIT License
