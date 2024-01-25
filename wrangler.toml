@@ -16,3 +16,4 @@ crons = [ "10 15 * * *" ]
 #MISSKEY_TOKEN = "YourToken"
 #POST_VISIBILITY = "home"
 #POST_TAGS = ["misshaialert"]
+#DEBOBI = true

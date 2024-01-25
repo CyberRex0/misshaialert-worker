@@ -34,6 +34,7 @@ MISSKEY_HOST = "投稿先サーバーのドメイン"
 MISSKEY_TOKEN = "設定で作成したトークン"
 POST_VISIBILITY = "home" # public (パブリック), home (ホーム), followers (フォロワーのみ), specified (DM)
 POST_TAGS = ["misshaialert"] # 投稿時に使用するタグ。複数指定可。#は書かない。misshaialertはミュート使用者のために推奨
+DEBOBI = true # 今日のデボビゲゴを投稿するかどうか
 ```
 
 投稿する時間も変更することができます。初期状態は 0:00 JST (15:00 UTC)です。<br>

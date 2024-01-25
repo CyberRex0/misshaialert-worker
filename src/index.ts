@@ -15,7 +15,7 @@ const postTemplate = '昨日のMisskeyの活動は\n\n\
 フォロー: {2}({3})\n\
 フォロワー: {4}({5})\n\
 \n\
-でした。\n\
+でした。{7}\n\
 <small>Powered by Cloudflare Workers</small>{6}\
 ';
 
@@ -34,6 +34,7 @@ export interface Env {
 	MISSKEY_TOKEN: string;
 	POST_VISIBILITY: 'public' | 'home' | 'followers' | 'specified' | undefined;
 	POST_TAGS: string[] | undefined;
+	DEBOBI: boolean;
 }
 
 export interface UserProfile {
@@ -47,6 +48,10 @@ export interface KVUserCountStore {
 	followersCount: number;
 	followingCount: number;
 	notesCount: number;
+}
+
+export interface DebobiAPIT {
+	generated: string;
 }
 
 async function saveCount(env: Env, key: string, notesCount: number, followersCount: number, followingCount: number) {
@@ -69,6 +74,14 @@ async function getProfile(env: Env): Promise<UserProfile> {
 		throw new Error('Failed to fetch profile');
 	}
 	return await profreq.json();
+}
+
+async function fetchDebobigegoStr(): Promise<string | null> {
+	const dres = await fetch('https://api.thinaticsystem.com/v1/debobigego');
+	if (!dres.ok || dres.status != 200) return null;
+
+	const j = await dres.json() as DebobiAPIT;
+	return j.generated;
 }
 
 export default {
@@ -100,6 +113,8 @@ export default {
 				hashtagstr = '\n' + hashtagstr.trim();
 			}
 			
+			const debobistr = env.DEBOBI ? await fetchDebobigegoStr() : null;
+
 			const text = format(postTemplate,
 				prof.notesCount,
 				(notesCountDelta >= 0 ? '+' : '' ) + notesCountDelta,
@@ -107,7 +122,8 @@ export default {
 				(followingCountDelta >= 0 ? '+' : '' ) + followingCountDelta,
 				prof.followersCount,
 				(followersCountDelta >= 0 ? '+' : '' ) + followersCountDelta,
-				hashtagstr
+				hashtagstr,
+				... (debobistr !== null) ? [ '\n\n今日のデボビゲゴ: ' + debobistr, ] : ['']
 			);
 
 			await fetch(`https://${env.MISSKEY_HOST}/api/notes/create`, {
