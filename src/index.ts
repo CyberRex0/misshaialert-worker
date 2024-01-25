@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 CyberRex <cyberrex@cbrx.io>
+// SPDX-FileCopyrightText: 2023-2024 CyberRex <cyberrex@cbrx.io>
 // SPDX-License-Identifier: MIT
 
 // https://qiita.com/YOS0602/items/8eadf8f7743ebdc5946c からコピー
@@ -102,11 +102,11 @@ export default {
 			
 			const text = format(postTemplate,
 				prof.notesCount,
-				(notesCountDelta >= 0 ? '+' : '-' ) + notesCountDelta,
+				(notesCountDelta >= 0 ? '+' : '' ) + notesCountDelta,
 				prof.followingCount,
-				(followingCountDelta >= 0 ? '+' : '-' ) + followingCountDelta,
+				(followingCountDelta >= 0 ? '+' : '' ) + followingCountDelta,
 				prof.followersCount,
-				(followersCountDelta >= 0 ? '+' : '-' ) + followersCountDelta,
+				(followersCountDelta >= 0 ? '+' : '' ) + followersCountDelta,
 				hashtagstr
 			);
 
